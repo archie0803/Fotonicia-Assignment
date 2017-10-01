@@ -33,24 +33,19 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/chooseBase"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="Base Image" />
-
-        <Button
             android:id="@+id/create"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.5"
-            android:text="Create" />
+            android:onClick="saveImage"
+            android:text="Create And Save" />
 
         <Button
             android:id="@+id/share"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="share"
             android:text="Share" />
 
     </LinearLayout>
