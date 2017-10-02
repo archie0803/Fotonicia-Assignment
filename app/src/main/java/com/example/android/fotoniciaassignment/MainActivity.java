@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     RelativeLayout relativeLayout;
     ImageView element1, baseLayout;
     CircleImageView element2;
-    Bitmap b;
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
 
     public static int PICK_PHOTO_FIRST = 1;
