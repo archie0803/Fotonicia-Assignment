@@ -1,5 +1,6 @@
 package com.example.android.fotoniciaassignment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -19,8 +20,12 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.R.attr.data;
+import static android.os.Build.VERSION_CODES.M;
 import static com.example.android.fotoniciaassignment.R.id.view;
 
 
@@ -31,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView element1, baseLayout;
     CircleImageView element2;
     Bitmap b;
+    public static int PICK_PHOTO_FIRST = 1;
+    public static int PICK_PHOTO_SECOND = 2;
     private float relX, relY;
     private float elem1X, elem1Y, elem1Width, elem1Height;
     private float elem2X, elem2Y, elem2Width, elem2Height;
@@ -52,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         Picasso.with(this).load(R.drawable.base).centerCrop().resize((int) baseWidth, (int) baseHeight).into(baseLayout);
 
         relX = relativeLayout.getX();
-        relY = (int) relativeLayout.getY();
+        relY = relativeLayout.getY();
         relativeLayout.getLayoutParams().height = (int) baseHeight;
         Log.i("TAG", "Height: " + baseHeight);
 
@@ -78,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         element2.getLayoutParams().width = (int) (elem2Width + 7.6);
         Log.i("TAG", "2W: " + elem2Width + " 2H: " + elem2Height);
 
+        image1 = (Button) findViewById(R.id.choose1);
+        image2 = (Button) findViewById(R.id.choose2);
         share = (Button) findViewById(R.id.share);
         share.setEnabled(false);
     }
@@ -173,5 +182,33 @@ public class MainActivity extends AppCompatActivity {
         shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "saved.jpeg")));
         shareIntent.setType("image/jpeg");
         startActivity(Intent.createChooser(shareIntent, "Share Image"));
+    }
+
+    public void pickImage(View view) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        if(view.getId() == R.id.choose1){
+            startActivityForResult(intent, PICK_PHOTO_FIRST);
+        } else if (view.getId() == R.id.choose2) {
+            startActivityForResult(intent, PICK_PHOTO_SECOND);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_PHOTO_FIRST || requestCode == PICK_PHOTO_SECOND && resultCode == Activity.RESULT_OK) {
+            if (data == null) {
+                //Display an error
+                Toast.makeText(this, "Couldn't load image", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Uri selectedImageUri = data.getData();
+            if(requestCode == PICK_PHOTO_FIRST) {
+                Picasso.with(this).load(selectedImageUri).into(element1);
+            } else if (requestCode == PICK_PHOTO_SECOND) {
+                Picasso.with(this).load(selectedImageUri).into(element2);
+            }
+        }
     }
 }
