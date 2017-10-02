@@ -1,12 +1,17 @@
 package com.example.android.fotoniciaassignment;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +26,8 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -31,11 +38,13 @@ import static com.example.android.fotoniciaassignment.R.id.view;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button image1, image2, create, share;
+    Button image1, image2, share;
     RelativeLayout relativeLayout;
     ImageView element1, baseLayout;
     CircleImageView element2;
     Bitmap b;
+    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
+
     public static int PICK_PHOTO_FIRST = 1;
     public static int PICK_PHOTO_SECOND = 2;
     private float relX, relY;
@@ -46,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkAndRequestPermissions();
+
         relativeLayout = (RelativeLayout) findViewById(view);
         element1 = (ImageView) findViewById(R.id.element1);
         element2 = (CircleImageView) findViewById(R.id.element2);
@@ -91,11 +103,30 @@ public class MainActivity extends AppCompatActivity {
         share.setEnabled(false);
     }
 
+    private  void checkAndRequestPermissions() {
+        int storage_a = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int storage_b = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
+        if (storage_a != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        if (storage_b != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (!listPermissionsNeeded.isEmpty())
+        {
+            ActivityCompat.requestPermissions(this,listPermissionsNeeded.toArray
+                    (new String[listPermissionsNeeded.size()]),REQUEST_ID_MULTIPLE_PERMISSIONS);
+
+        }
+    }
+
     public void saveImage(View view) {
         try {
             // Create a new File instance to save the generated image;
             File file = new File(Environment.getExternalStorageDirectory()
-                    .getPath() + "/saved.jpeg");
+                    .getPath() + "/Final Design.png");
             // Check if File does not exist in the storage;
             if (!file.exists()) {
                 // Create a physical File;
@@ -160,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             // Make the Layout draw its child Views on the Canvas;
             relativeLayout.draw(canvas);
             // Save the Bitmap to the File instance;
-            bitmap.compress(Bitmap.CompressFormat.JPEG,81, fos);
+            bitmap.compress(Bitmap.CompressFormat.PNG,100, fos);
             // Flush(Clear) the FileOutputStream;
             fos.flush();
             // Close the FileOutputStream;
@@ -179,8 +210,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void share(View view) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "saved.jpeg")));
-        shareIntent.setType("image/jpeg");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "Final Design.png")));
+        shareIntent.setType("image/png");
         startActivity(Intent.createChooser(shareIntent, "Share Image"));
     }
 
@@ -199,7 +230,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_PHOTO_FIRST || requestCode == PICK_PHOTO_SECOND && resultCode == Activity.RESULT_OK) {
             if (data == null) {
-                //Display an error
                 Toast.makeText(this, "Couldn't load image", Toast.LENGTH_SHORT).show();
                 return;
             }
